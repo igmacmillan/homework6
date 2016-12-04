@@ -5,7 +5,7 @@
 #include "Student.h"
 
 #include <iostream>
-#include <cstring>
+#include <string>
 #include <cstdlib>
 
 using namespace std;
@@ -13,18 +13,21 @@ using namespace std;
 class Roster
 {
 private:
-	int size;
+	int size, capacity;
 	string courseName;
 	string courseCode;
 	int credits;
 	string instructName;
-#define MAX_CAPACITY  10
-	Student students[MAX_CAPACITY];
+	Student** students;
+	void grow();
 
 public:
 	Roster(string name, string code, int creds, string instuctor);
 	Roster(string name, string code, int creds);
 	Roster();
+	Roster(const Roster& other);
+	~Roster();
+	int Roster::getSize() const;
 
 	void output() const; //prints to cosole course name, code, credits & instructor
 
@@ -47,7 +50,7 @@ public:
 	void addStudent();
 	//will ask user for a student name and add them to the course roster
 
-	void deleteStudent(const int& s);
+	void deleteStudent(int s);
 	//precondition: pass the arrray position of the student you wish to remove
 	//postcondition: student will be removed from the course
 
@@ -62,6 +65,9 @@ public:
 	//prints all info of the students added to course
 
 	void sort();
+
+	Roster& operator = (const Roster& other);
+	const Student& operator [] (int index);
 
 	friend ostream& operator << (ostream& output, const Roster& r);
 	friend istream& operator >> (istream& input, Roster& r);

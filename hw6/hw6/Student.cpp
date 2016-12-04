@@ -1,11 +1,12 @@
 #include "Student.h"
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 using namespace std;
 Student::Student()
 	: lastName(""), firstName(""), standing("Lower Freshman"), credits(0), gpa(0.0), dob("1 1, 1900"), id(12345), matriculation("1 1, 2000")
-{}
+{
+}
 Student::Student(string last, string first, int creditsValue, double gpaValue, string date, int num, string mat)
 	: lastName(last), firstName(first), credits(creditsValue), gpa(gpaValue), dob(date), id(num), matriculation(mat)
 {

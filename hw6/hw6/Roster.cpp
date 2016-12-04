@@ -10,20 +10,45 @@ using namespace std;
 
 
 Roster::Roster(string name, string code, int creds, string instuctor)
-	: courseName(name), courseCode(code), credits(creds), instructName(instuctor)
+	: courseName(name), courseCode(code), credits(creds), instructName(instuctor), size(0), capacity(10)
 {
-	size = 0;
+	students = new Student*[capacity];
 }
 
 Roster::Roster(string name, string code, int creds)
-	: courseName(name), courseCode(code), credits(creds)
+	: courseName(name), courseCode(code), credits(creds), instructName("TBD"), size(0), capacity(10)
 {
-	size = 0;
+	students = new Student*[capacity];
 }
 
-Roster::Roster()
+Roster::Roster() 
+	: courseName("TBD"), courseCode("TBD"), credits(0), instructName("TBD"), size(0), capacity(10)
 {
-	size = 0;
+	students = new Student*[capacity];
+}
+
+Roster::Roster(const Roster& other)
+	:size(other.size), capacity(other.capacity), courseName(other.courseName), courseCode(other.courseCode),credits(other.credits),
+	instructName(other.instructName)
+{
+	students = new Student*[capacity];
+	for (int i = 0; i < size; i++)
+	{
+		students[i] = new Student(*(other.students[i]));
+		//students[i] = new Student;
+		//*students[i] = *other.students[i];
+
+	}
+}
+
+Roster::~Roster()
+{
+	for (int i = 0; i < size; i++)
+	{
+		delete students[i];
+	}
+
+	delete[] students;
 }
 
 void Roster::output() const
@@ -76,12 +101,18 @@ string Roster::getInstructor() const
 	return instructName;
 }
 
+int Roster::getSize() const
+{
+	return size;
+}
 
 void Roster::addStudent()
 {
-
-	students[size].setName();
-	students[size].setID();
+	if (size == capacity)
+		grow();
+	students[size] = new Student;
+	students[size]->setName();
+	students[size]->setID();
 	size++;
 }
 
@@ -91,7 +122,7 @@ void Roster::printStudentName() const
 	cout << "The following are the students registered for this course:\n";
 	for (int i = 0; i < size; i++)
 	{
-		cout << count << " - " << students[i].getName() << endl;
+		cout << count << " - " << students[i]->getName() << endl;
 		count++;
 	}
 	cout << endl;
@@ -104,7 +135,7 @@ void Roster::printStudentInfo() const
 	for (int i = 0; i < size; i++)
 	{
 		cout << count << " - ";
-		students[i].output();
+		students[i]->output();
 		cout << endl;
 
 		count++;
@@ -112,10 +143,12 @@ void Roster::printStudentInfo() const
 	cout << endl;
 }
 
-void Roster::deleteStudent(const int& s)
+void Roster::deleteStudent(int s)
 {
-	students[s].removeStudent();
-
+	delete students[s - 1];
+	students[s-1] = students[size - 1];
+	students[size - 1] = NULL;
+	size--;
 }
 
 
@@ -125,7 +158,7 @@ void Roster::searchStudent(string f, string l) const
 	for (int i = 0; i < size; i++)
 	{
 
-		if (f == students[i].getFirstName() && l == students[i].getLastName())
+		if (f == students[i]->getFirstName() && l == students[i]->getLastName())
 		{
 			cout << "Yes, that student is registered for this course.\n";
 			found = 0;
@@ -139,7 +172,7 @@ void Roster::searchStudent(string f, string l) const
 
 void Roster::sort()
 {
-	Student temp;
+	Student* temp = new Student;
 	int min;
 
 	for (int i = 0; i < size - 1; i++)
@@ -147,7 +180,7 @@ void Roster::sort()
 		min = i;
 		for (int j = i + 1; j < size; j++)
 		{
-			if (students[j] < students[min])
+			if (*(students[j]) < *(students[min]))
 				min = j;
 		}
 
@@ -158,6 +191,52 @@ void Roster::sort()
 			students[min] = temp;
 		}
 	}
+	delete temp;
+}
+
+void Roster::grow()
+{
+	capacity = capacity + 10;
+	Student** s = new Student*[capacity];
+	for (int i = 0; i < size; i++)
+	{
+		s[i] = students[i];
+	}
+	delete[] students;
+	students = s;
+
+}
+
+Roster& Roster::operator = (const Roster& other)
+{
+	if (this == &other)
+		return *this;
+	else
+	{
+		for (int i = 0; i < size; i++)
+		{
+			delete students[i];
+		}
+		delete[] students;
+		size = other.size;
+		capacity = other.capacity;
+		courseName = other.courseName;;
+		courseCode = other.courseCode;
+		credits = other.credits;
+		instructName = other. instructName;
+			
+		students = new Student*[capacity];
+		for (int i = 0; i < size; i++)
+		{
+			students[i] = new Student(*(other.students[i]));
+		}
+		return *this;
+	}
+}
+
+const Student& Roster::operator [] (int index)
+{
+	return *students[index];
 }
 
 ostream& operator << (ostream& output, const Roster& r)
